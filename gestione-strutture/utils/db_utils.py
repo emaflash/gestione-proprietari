@@ -1,53 +1,23 @@
 import sqlite3
-import pandas as pd
+import os
 
-DB_PATH = "data/db.sqlite3"
+DB_PATH = "data/database.db"
 
-def init_db():
+# Se non esiste la cartella, creala
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+# Se non esiste il database, crealo e inizializzalo
+if not os.path.exists(DB_PATH):
     conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-
-    cur.execute("""CREATE TABLE IF NOT EXISTS proprietari (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        email TEXT,
-        telefono TEXT,
-        note TEXT
-    )""")
-
-    cur.execute("""CREATE TABLE IF NOT EXISTS immobili (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        proprietario_id INTEGER,
-        nome TEXT,
-        indirizzo TEXT,
-        capienza INTEGER,
-        licenza TEXT,
-        note TEXT,
-        FOREIGN KEY (proprietario_id) REFERENCES proprietari(id)
-    )""")
-
-    cur.execute("""CREATE TABLE IF NOT EXISTS comunicazioni (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        proprietario_id INTEGER,
-        data TEXT,
-        canale TEXT,
-        messaggio TEXT,
-        allegato TEXT,
-        FOREIGN KEY (proprietario_id) REFERENCES proprietari(id)
-    )""")
-
-    conn.commit()
-    conn.close()
-
-def get_df(query):
-    conn = sqlite3.connect(DB_PATH)
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
-
-def execute(query, params=()):
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute(query, params)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS proprietari (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT,
+            cognome TEXT,
+            email TEXT,
+            telefono TEXT
+        )
+    """)
     conn.commit()
     conn.close()
